@@ -11,8 +11,12 @@ import (
 )
 
 const (
-	FlagKeySize = "key-size"
+	FlagSize   = "size"
+	FlagType   = "type"
+	FlagPrefix = "prefix"
 )
+
+var flags gen.Flags
 
 var genCmd = &cobra.Command{
 	Use:   "gen",
@@ -27,23 +31,18 @@ var genKeyCmd = &cobra.Command{
 			Must(errors.New("must provide at least one private key file"))
 		}
 
-		size, err := cmd.PersistentFlags().GetInt(FlagKeySize)
-		Must(err)
-
-		var gens []*gen.KeyGen
+		var result *multierror.Error
 		for _, a := range args {
-			gens = append(gens, &gen.KeyGen{Path: a, Size: size, Type: "RSA"})
-		}
-
-		var result error
-		for _, g := range gens {
+			flags.Path = a
+			g := gen.NewKeyGen(&flags)
 			if err := g.Gen(); err != nil {
 				result = multierror.Append(result, err)
 			} else {
-				fmt.Printf("generated key: %s\n", g.Path)
+				fmt.Printf("generated key: %s\n", a)
 			}
 		}
-		Must(result)
+
+		Must(result.ErrorOrNil())
 	},
 }
 
@@ -55,7 +54,9 @@ var genCACmd = &cobra.Command{
 }
 
 func init() {
-	genKeyCmd.PersistentFlags().IntP(FlagKeySize, "s", 2048, "bit size of generated keys")
+	genCmd.PersistentFlags().IntVarP(&flags.Size, FlagSize, "s", 2048, "bit size of generated keys")
+	genCmd.PersistentFlags().StringVarP(&flags.Type, FlagType, "t", "RSA", "key algorithm")
+	genCmd.PersistentFlags().StringVarP(&flags.Prefix, FlagPrefix, "p", "", "prefix to all file names")
 	genCmd.AddCommand(genKeyCmd)
 	genCmd.AddCommand(genCACmd)
 	RootCmd.AddCommand(genCmd)
