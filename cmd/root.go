@@ -25,7 +25,7 @@ func init() {
 
 func Must(err error) {
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error: %s\n", err)
 		os.Exit(1)
 	}
 }

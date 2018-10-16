@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
+
+	"github.com/joshvanl/gopem/pkg/file"
 )
 
 type KeyGen struct {
@@ -46,18 +48,18 @@ func (k *KeyGen) Gen() error {
 		return err
 	}
 
-	file, err := os.Create(k.path)
-	defer file.Close()
+	f, err := os.Create(k.path)
+	defer f.Close()
 	if err != nil {
 		return err
 	}
 
-	if err := pem.Encode(file, &pem.Block{
+	if err := pem.Encode(f, &pem.Block{
 		Type:  "PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(p),
 	}); err != nil {
 		return fmt.Errorf("failed to generate key '%s': %s", k.path, err)
 	}
 
-	return nil
+	return file.EnsureFileMode(f.Name())
 }

@@ -19,16 +19,17 @@ const (
 var flags gen.Flags
 
 var genCmd = &cobra.Command{
-	Use:   "gen",
-	Short: "generate fresh x509 pem keys and certs",
+	Use:     "generate",
+	Short:   "generate fresh x509 pem keys and certs",
+	Aliases: []string{"gen", "g"},
 }
 
 var genKeyCmd = &cobra.Command{
-	Use:   "key",
+	Use:   "key [files..]",
 	Short: "generate fresh private keys",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			Must(errors.New("must provide at least one private key file"))
+			Must(errors.New("provide at least one private key file to generate"))
 		}
 
 		var result *multierror.Error
