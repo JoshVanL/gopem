@@ -55,11 +55,11 @@ func (d *Desc) printf(pem []byte) error {
 		return nil
 	}
 
-	//cert, err := x509.ParseCertificate(pem)
-	//if err == nil {
-	//	d.cert(pk)
-	//	return nil
-	//}
+	cert, err := x509.ParseCertificate(pem)
+	if err == nil {
+		d.cert(cert)
+		return nil
+	}
 
 	return nil
 }
@@ -68,12 +68,16 @@ func (d *Desc) rsaPrivateKey(pk *rsa.PrivateKey) {
 	fmt.Printf("Private key: %s\n", d.path)
 	fmt.Printf("N: %s\n", pk.N.String())
 	fmt.Printf("E: %d\n", pk.E)
-	fmt.Printf("D: %s\n\n", pk.D.String())
+	fmt.Printf("D: %s\n", pk.D.String())
+	fmt.Print("\n")
 }
 
-//func (d *Desc) cert(cert *x509.Certificate) {
-//	fmt.Printf("Private key: %s\n", d.path)
-//	fmt.Printf("N: %s\n", pk.N.String())
-//	fmt.Printf("E: %d\n", pk.E)
-//	fmt.Printf("D: %s\n\n", pk.D.String())
-//}
+func (d *Desc) cert(cert *x509.Certificate) {
+	fmt.Printf("certificate: %s\n", d.path)
+	fmt.Printf("Issuer: %s\n", cert.Issuer.String())
+	fmt.Printf("Valid from: %s\n", cert.NotBefore.String())
+	fmt.Printf("Valid till: %s\n", cert.NotAfter.String())
+	fmt.Printf("Emails: %s\n", cert.EmailAddresses)
+	fmt.Printf("Subject: %s\n", cert.Subject.String())
+	fmt.Print("\n")
+}
